@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use App\Http\Controllers\Controller;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ArticleRequest;
 
 use Carbon\Carbon;
@@ -19,42 +19,45 @@ class ArticlesController extends Controller {
         
         return view('articles.index', compact('articles'));
     }
-    public function show($id) {
-        return $id;
+    public function show(Article $article) {
+        return view('articles.show', compact('article'));
     }
     
     public function create() {
         return view('articles.create');
     }
+
     public function store(ArticleRequest $request) {
-        $rules = [
-            'title' => 'required|min:3',
-            'body' => 'required',
-            'published_at' => 'required|date',
-        ];
+
+        // Article::create($request->validated());
         
-        Article::create($request->validated());
-        
-        return redirect('articles');
+        Auth::user()->articles()->create($request->validated());
+
+        return redirect()->route('articles.index')
+            ->with('message', '記事を追加しました。');
     }
-    public function edit($id) {
-        $article = Article::findOrFail($id);
- 
+
+    public function edit(Article $article) {
         return view('articles.edit', compact('article'));
-    }
- 
-    public function update(ArticleRequest $request, $id) {
-        $article = Article::findOrFail($id);
- 
-        $article->update($request->validated());
- 
-        return redirect(url('articles', [$article->id]));
-    }
-    public function destroy($id) {
-        $article = Article::findOrFail($id);
         
+    }
+ 
+    public function update(ArticleRequest $request, Article $article) {
+        $article->update($request->validated());
+        
+        return redirect()->route('articles.show', [$article->id])
+             ->with('message', '記事を更新しました。');
+     }
+     
+    public function destroy(Article $article) {
         $article->delete();
         
-        return redirect('articles');
+        return redirect()->route('articles.index')
+        ->with('message', '記事を削除しました。');
+    }
+    
+    public function __construct() {
+        $this->middleware('auth')
+            ->except(['index', 'show']);
     }
 }

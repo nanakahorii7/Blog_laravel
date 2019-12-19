@@ -11,5 +11,8 @@ class Article extends Model {
     public function scopePublished($query) {
         $query->where('published_at', '<=', Carbon::now());
     }
+    public function user() {
+        return $this->belongsTo('App\User');
+    }
     
 }

@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 class PagesController extends Controller {
         public function about() {
             $data = [];
-            $data["first_name"] = "Luke";
-            $data["last_name"] = "Skywalker";
+            $data["first_name"] = "Nanaka";
+            $data["last_name"] = "Horii";
             
         return view('pages.about', $data);
         }

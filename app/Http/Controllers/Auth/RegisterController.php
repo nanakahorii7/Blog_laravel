@@ -28,13 +28,18 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    // protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
+     
+    protected function redirectTo () {
+        return route('dashboard');
+    }
+    
     public function __construct()
     {
         $this->middleware('guest');
