@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Article;
+use App\Tag;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ArticleRequest;
@@ -24,26 +25,30 @@ class ArticlesController extends Controller {
     }
     
     public function create() {
-        return view('articles.create');
+        $tag_list = Tag::pluck('name','id');
+        return view('articles.create', compact('tag_list'));
     }
 
     public function store(ArticleRequest $request) {
 
         // Article::create($request->validated());
         
-        Auth::user()->articles()->create($request->validated());
+        $article = Auth::user()->articles()->create($request->validated());
+        $article->tags()->attach($request->input('tags'));
 
         return redirect()->route('articles.index')
             ->with('message', '記事を追加しました。');
     }
 
     public function edit(Article $article) {
-        return view('articles.edit', compact('article'));
+        $tag_list = Tag::pluck('name', 'id');
+        return view('articles.edit', compact('article', 'tag_list'));
         
     }
  
-    public function update(ArticleRequest $request, Article $article) {
+    public function update(Article $article, ArticleRequest $request) {
         $article->update($request->validated());
+        $article->tags()->sync($request->input('tags'));
         
         return redirect()->route('articles.show', [$article->id])
              ->with('message', '記事を更新しました。');
